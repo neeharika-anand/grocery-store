@@ -1,3 +1,5 @@
+
+
 package com.javaproject.Controller;
 
 import java.io.IOException;
@@ -29,20 +31,17 @@ public class OrderController extends HttpServlet {
 
 		if (userName == null || password == null) {
 
-			response.sendRedirect("login.jsp?message=Session Expired, Login Again!!");
+			response.sendRedirect("login.jsp?message=Session Expired, LoginFacade Again!!");
 		}
 
 		double paidAmount = Double.parseDouble(request.getParameter("amount"));
-		String status = new OrderServiceImpl().paymentSuccess(userName, paidAmount);
+		// Create and execute the payment command
+		OrderCommand paymentCommand = new PaymentCommand(userName, paidAmount);
+		String status = paymentCommand.execute();
 
-		PrintWriter pw = response.getWriter();
-		response.setContentType("text/html");
-
-		RequestDispatcher rd = request.getRequestDispatcher("orderDetails.jsp");
-
-		rd.include(request, response);
-
-		pw.println("<script>document.getElementById('message').innerHTML='" + status + "'</script>");
+		// Forward the request to orderDetails.jsp
+		request.setAttribute("status", status);
+		request.getRequestDispatcher("orderDetails.jsp").forward(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
